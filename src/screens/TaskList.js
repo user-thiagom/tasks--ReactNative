@@ -5,6 +5,7 @@ import commonStyles from '../commonStyles'
 import todayImage from '../../assets/imgs/today.jpg'
 import moment from 'moment'
 import 'moment/locale/pt-br'
+import Task from '../components/Task'
 
 const TaskList = () => {
 
@@ -19,7 +20,8 @@ const TaskList = () => {
                 </View>
             </ImageBackground>
             <View style={styles.taskList}>
-                <Text>TaskList</Text>
+                <Task desc='Comprar Pão' estimateAt={new Date()} doneAt={new Date()}/>
+                <Task desc='Ler Livro' estimateAt={new Date()} doneAt={null} />
             </View>
         </View>
     )
