@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, TouchableWithoutFeedback } from 'react-native'
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import { AntDesign } from '@expo/vector-icons';
@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import commonStyles from '../commonStyles';
 import moment from 'moment';
 
-const Task = ({ desc, estimateAt, doneAt }) => {
+const Task = ({ id,desc, estimateAt, doneAt, toggleTask }) => {
 
     function getCheckView(doneAt) {
         if (doneAt != null) {
@@ -15,10 +15,10 @@ const Task = ({ desc, estimateAt, doneAt }) => {
                     <AntDesign name="check" size={20} color="white" />
                 </View>
             )
-        } else{
+        } else {
             return (
                 <View style={styles.pending}>
-                    
+
                 </View>
             )
         }
@@ -31,9 +31,12 @@ const Task = ({ desc, estimateAt, doneAt }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.checkContainer}>
-                {getCheckView(doneAt)}
-            </View>
+            <TouchableWithoutFeedback onPress={()=>toggleTask(id)}>
+                <View style={styles.checkContainer}>
+                    {getCheckView(doneAt)}
+                </View>
+            </TouchableWithoutFeedback>
+
             <View>
                 <Text style={[styles.desc, doneOrNotStyle]}>{desc}</Text>
                 <Text style={styles.date}>{formatedDate + ""}</Text>
@@ -52,23 +55,23 @@ const styles = StyleSheet.create({
     },
     checkContainer: {
         width: '20%',
-        alignItems:'center',
-        justifyContent:'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     pending: {
         height: 25,
         width: 25,
         borderRadius: 13,
-        borderWidth:1,
-        borderColor:'#555'
+        borderWidth: 1,
+        borderColor: '#555'
     },
-    done:{
+    done: {
         height: 25,
         width: 25,
         borderRadius: 13,
-        backgroundColor:'#4d7031',
-        justifyContent:'center',
-        alignItems:'center'
+        backgroundColor: '#4d7031',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     desc: {
         color: commonStyles.colors.mainText,
