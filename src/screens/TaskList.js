@@ -8,6 +8,7 @@ import Task from '../components/Task'
 import { FlatList } from 'react-native'
 import { TouchableOpacity } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
+import AddTask from './AddTask'
 
 const initialTaskState = [
     {
@@ -29,10 +30,11 @@ const TaskList = () => {
     const [tasks, setTasks] = useState(initialTaskState)
     const [showDoneTasks, setshowDoneTasks] = useState(true)
     const [visibleTasks, setVisibleTasks] = useState([])
+    const [showAddTask, setShowAddTask] = useState(false)
 
-    useEffect(()=>{
+    useEffect(() => {
         filterTasks()
-    },[showDoneTasks,tasks])
+    }, [showDoneTasks, tasks])
 
     const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
 
@@ -40,11 +42,11 @@ const TaskList = () => {
         setshowDoneTasks(!showDoneTasks)
     }
 
-    function filterTasks(){
+    function filterTasks() {
         let visibleTasksCopy = null
-        if(showDoneTasks){
+        if (showDoneTasks) {
             visibleTasksCopy = [...tasks]
-        }else{
+        } else {
             const pending = task => task.doneAt === null
             visibleTasksCopy = tasks.filter(pending)
         }
@@ -65,10 +67,12 @@ const TaskList = () => {
 
     return (
         <View style={styles.container}>
+            <AddTask isVisible={showAddTask} onCancel={() => setShowAddTask(!showAddTask)} />
+
             <ImageBackground style={styles.background} source={todayImage}>
                 <View style={styles.iconBar}>
                     <TouchableOpacity onPress={togglefilter}>
-                        <Entypo name={showDoneTasks ? 'eye' : 'eye-with-line' } size={20} color={commonStyles.colors.secondary} />
+                        <Entypo name={showDoneTasks ? 'eye' : 'eye-with-line'} size={20} color={commonStyles.colors.secondary} />
                     </TouchableOpacity>
                 </View>
                 <View style={styles.titleBar}>
@@ -76,12 +80,17 @@ const TaskList = () => {
                     <Text style={styles.subtitle}>{today}</Text>
                 </View>
             </ImageBackground>
+
             <View style={styles.taskList}>
                 <FlatList data={visibleTasks}
                     keyExtractor={item => `${item.id}`}
                     renderItem={({ item }) => <Task {...item} toggleTask={toggleTask} />}
                 />
             </View>
+            
+            <TouchableOpacity style={styles.addButton} onPress={()=>setShowAddTask(true)} activeOpacity={0.7}>
+                <Entypo name='plus' size={20} color={commonStyles.colors.secondary}/>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -115,8 +124,19 @@ const styles = StyleSheet.create({
     iconBar: {
         flexDirection: 'row',
         marginHorizontal: 20,
-        justifyContent:'flex-end',
-        marginTop:'10%'
+        justifyContent: 'flex-end',
+        marginTop: '10%'
+    },
+    addButton: {
+        position: 'absolute',
+        right: 30,
+        bottom: 30,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: commonStyles.colors.today,
+        justifyContent:'center',
+        alignItems:'center'
     }
 })
 
