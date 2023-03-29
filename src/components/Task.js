@@ -2,11 +2,12 @@ import { View, Text, TouchableWithoutFeedback } from 'react-native'
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import { AntDesign } from '@expo/vector-icons';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import commonStyles from '../commonStyles';
 import moment from 'moment';
+import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 
-const Task = ({ id,desc, estimateAt, doneAt, toggleTask }) => {
+const Task = ({ id, desc, estimateAt, doneAt, toggleTask, onDelete }) => {
 
     function getCheckView(doneAt) {
         if (doneAt != null) {
@@ -24,24 +25,45 @@ const Task = ({ id,desc, estimateAt, doneAt, toggleTask }) => {
         }
     }
 
+    const getRightContent = () => {
+        return (
+            <TouchableOpacity style={styles.right} onPress={()=>onDelete && onDelete(id)}>
+                <AntDesign name='delete' size={30} color='white' />
+            </TouchableOpacity>
+        )
+    }
+
+    const getLeftContent = () => {
+        return (
+            <View style={styles.left}>
+                <AntDesign style={styles.excludeIcon} name='delete' size={20} color='white' />
+                <Text style={styles.excludeText}>Excluir</Text>
+            </View>
+        )
+    }
+
     const doneOrNotStyle = doneAt != null ? { textDecorationLine: 'line-through' } : {}
 
     const date = doneAt ? doneAt : estimateAt
     const formatedDate = moment(date).locale('pt-br').format('ddd, D [de] MMMM')
 
     return (
-        <View style={styles.container}>
-            <TouchableWithoutFeedback onPress={()=>toggleTask(id)}>
-                <View style={styles.checkContainer}>
-                    {getCheckView(doneAt)}
-                </View>
-            </TouchableWithoutFeedback>
+        <GestureHandlerRootView>
+            <Swipeable renderRightActions={getRightContent} renderLeftActions={getLeftContent} onSwipeableLeftOpen={()=>onDelete && onDelete(id)}>
+                <View style={styles.container}>
+                    <TouchableWithoutFeedback onPress={() => toggleTask(id)}>
+                        <View style={styles.checkContainer}>
+                            {getCheckView(doneAt)}
+                        </View>
+                    </TouchableWithoutFeedback>
 
-            <View>
-                <Text style={[styles.desc, doneOrNotStyle]}>{desc}</Text>
-                <Text style={styles.date}>{formatedDate + ""}</Text>
-            </View>
-        </View>
+                    <View>
+                        <Text style={[styles.desc, doneOrNotStyle]}>{desc}</Text>
+                        <Text style={styles.date}>{formatedDate + ""}</Text>
+                    </View>
+                </View>
+            </Swipeable>
+        </GestureHandlerRootView>
     )
 }
 
@@ -51,7 +73,8 @@ const styles = StyleSheet.create({
         borderColor: '#aaa',
         borderBottomWidth: 1,
         alignItems: 'center',
-        paddingVertical: 10
+        paddingVertical: 10,
+        backgroundColor:'white'
     },
     checkContainer: {
         width: '20%',
@@ -80,6 +103,27 @@ const styles = StyleSheet.create({
     date: {
         color: commonStyles.colors.subText,
         fontSize: 12
+    },
+    right: {
+        backgroundColor: 'red',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        paddingHorizontal: 20
+    },
+    left:{
+        backgroundColor:'red',
+        flexDirection:'row',
+        alignItems:'center',
+        flex:1
+    },
+    excludeText:{
+        fontSize:20,
+        color:'white',
+        margin:10
+    },
+    excludeIcon:{
+        marginLeft:10
     }
 })
 

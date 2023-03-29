@@ -6,14 +6,50 @@ import { TouchableWithoutFeedback } from 'react-native'
 import commonStyles from '../commonStyles'
 import { TextInput } from 'react-native'
 import { TouchableOpacity } from 'react-native'
+import DateTimePicker from '@react-native-community/datetimepicker'
+import moment from 'moment'
+
 
 const initialState = {
-    desc: ''
+    desc: '',
+    date: new Date(),
+    showDatePicker: false
 }
 
-const AddTask = ({ onCancel, isVisible }) => {
+const AddTask = ({ onCancel, isVisible, onSave }) => {
 
     const [state,setState] = useState(initialState)
+
+    const save = ()=>{
+        const newTask = {
+            desc: state.desc,
+            date: state.date
+        }
+
+        if(onSave)
+            onSave(newTask)
+        
+        setState({...initialState})
+    }
+
+    const getDateTimePicker = ()=>{
+        const datePicker = <DateTimePicker
+            value={state.date}
+            onChange={(_,date)=>{setState(st=>({...st,date,showDatePicker:false}))}} mode='date'/>
+
+        const dateString = moment(state.date).format('ddd, D [de] MMMM [de] YYYY')
+
+        return (
+            <View>
+                <TouchableOpacity onPress={()=>setState(st=>({...st,showDatePicker:true}))}>
+                    <Text style={styles.date}>
+                        {dateString}
+                    </Text>
+                </TouchableOpacity>
+                {state.showDatePicker &&  datePicker}
+            </View>
+        )
+    }
 
     return (
         <Modal transparent={true} visible={isVisible} onRequestClose={onCancel} animationType='slide'>
@@ -29,12 +65,14 @@ const AddTask = ({ onCancel, isVisible }) => {
                     value={state.desc}
                     onChangeText={desc => setState(st=>({...st,desc}))}/>
                 
+                {getDateTimePicker()}
+
                 <View style={styles.buttons}>
                     <TouchableOpacity onPress={onCancel}>
                         <Text style={styles.button}>Cancelar</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={save}>
                         <Text style={styles.button}>Salvar</Text>
                     </TouchableOpacity>
                 </View>
@@ -78,6 +116,10 @@ const styles = StyleSheet.create({
         margin:20,
         marginRight:30,
         color:commonStyles.colors.today
+    },
+    date: {
+        fontSize: 20,
+        marginLeft: 15
     }
 })
 

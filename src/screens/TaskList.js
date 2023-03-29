@@ -9,6 +9,8 @@ import { FlatList } from 'react-native'
 import { TouchableOpacity } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
 import AddTask from './AddTask'
+import { Alert } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const initialTaskState = [
     {
@@ -33,6 +35,15 @@ const TaskList = () => {
     const [showAddTask, setShowAddTask] = useState(false)
 
     useEffect(() => {
+        getTasksFromStorage = async () => {
+            const stateString = await AsyncStorage.getItem('tasks')
+            const state = JSON.parse(stateString) || initialTaskState
+            setTasks(state)
+        }
+        getTasksFromStorage()
+    }, [])
+
+    useEffect(() => {
         filterTasks()
     }, [showDoneTasks, tasks])
 
@@ -52,6 +63,7 @@ const TaskList = () => {
         }
 
         setVisibleTasks(visibleTasksCopy)
+        AsyncStorage.setItem('tasks', JSON.stringify(tasks))
     }
 
     function toggleTask(taskId) {
@@ -65,9 +77,32 @@ const TaskList = () => {
         setTasks(tasksCopy)
     }
 
+    function addTask(newTask) {
+        if (!newTask.desc || !newTask.desc.trim()) {
+            Alert.alert('Dados Inválidos!', 'Descrição não informada')
+            return
+        }
+
+        const tasksCopy = [...tasks]
+        tasksCopy.push({
+            id: Math.random(),
+            desc: newTask.desc,
+            estimateAt: newTask.date,
+            doneAt: null
+        })
+
+        setTasks(tasksCopy)
+        setShowAddTask(false)
+    }
+
+    function deleteTask(id) {
+        const tasksCopy = tasks.filter(t => t.id !== id)
+        setTasks(tasksCopy)
+    }
+
     return (
         <View style={styles.container}>
-            <AddTask isVisible={showAddTask} onCancel={() => setShowAddTask(!showAddTask)} />
+            <AddTask isVisible={showAddTask} onCancel={() => setShowAddTask(!showAddTask)} onSave={addTask} />
 
             <ImageBackground style={styles.background} source={todayImage}>
                 <View style={styles.iconBar}>
@@ -84,12 +119,12 @@ const TaskList = () => {
             <View style={styles.taskList}>
                 <FlatList data={visibleTasks}
                     keyExtractor={item => `${item.id}`}
-                    renderItem={({ item }) => <Task {...item} toggleTask={toggleTask} />}
+                    renderItem={({ item }) => <Task {...item} toggleTask={toggleTask} onDelete={deleteTask} />}
                 />
             </View>
-            
-            <TouchableOpacity style={styles.addButton} onPress={()=>setShowAddTask(true)} activeOpacity={0.7}>
-                <Entypo name='plus' size={20} color={commonStyles.colors.secondary}/>
+
+            <TouchableOpacity style={styles.addButton} onPress={() => setShowAddTask(true)} activeOpacity={0.7}>
+                <Entypo name='plus' size={20} color={commonStyles.colors.secondary} />
             </TouchableOpacity>
         </View>
     )
@@ -135,8 +170,8 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 25,
         backgroundColor: commonStyles.colors.today,
-        justifyContent:'center',
-        alignItems:'center'
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })
 
