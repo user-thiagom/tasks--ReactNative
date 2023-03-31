@@ -7,6 +7,7 @@ import { StyleSheet } from 'react-native'
 import { TextInput } from 'react-native'
 import { TouchableOpacity } from 'react-native'
 import { Alert } from 'react-native'
+import AuthInput from '../components/AuthInput'
 
 const initialState = {
     name: '',
@@ -35,14 +36,14 @@ const Auth = () => {
                 <Text style={styles.subtitle}>{state.stageNew ? 'Crie a sua conta' : 'Informe seus dados'}</Text>
 
                 {state.stageNew &&
-                    <TextInput placeholder='Nome' value={state.name} style={styles.input} onChangeText={name => setState(st => ({ ...st, name }))} />
+                    <AuthInput nameIcon='user' placeholder='Nome' value={state.name} style={styles.input} onChangeText={name => setState(st => ({ ...st, name }))} />
                 }
 
-                <TextInput placeholder='E-mail' value={state.email} style={styles.input} onChangeText={email => setState(st => ({ ...st, email }))} />
-                <TextInput secureTextEntry={true} placeholder='Senha' value={state.password} style={styles.input} onChangeText={password => setState(st => ({ ...st, password }))} />
+                <AuthInput nameIcon='email' placeholder='E-mail' value={state.email} style={styles.input} onChangeText={email => setState(st => ({ ...st, email }))} />
+                <AuthInput nameIcon='lock' secureTextEntry={true} placeholder='Senha' value={state.password} style={styles.input} onChangeText={password => setState(st => ({ ...st, password }))} />
 
                 {state.stageNew &&
-                    <TextInput placeholder='Confirme a senha' value={state.confirmPassword} style={styles.input} onChangeText={confirmPassword => setState(st => ({ ...st, confirmPassword }))} />
+                    <AuthInput nameIcon='lock' placeholder='Confirme a senha' value={state.confirmPassword} style={styles.input} onChangeText={confirmPassword => setState(st => ({ ...st, confirmPassword }))} />
                 }
 
                 <TouchableOpacity onPress={signinOrSignup}>
@@ -95,7 +96,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#080',
         marginTop: 10,
         padding: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        borderRadius:7
     },
     buttonText: {
         color: 'white',
