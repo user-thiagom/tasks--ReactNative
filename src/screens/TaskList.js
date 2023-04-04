@@ -11,6 +11,8 @@ import { Entypo } from '@expo/vector-icons';
 import AddTask from './AddTask'
 import { Alert } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { server, showError } from '../common'
+import axios from 'axios'
 
 const initialTaskState = [
     {
@@ -38,16 +40,31 @@ const TaskList = () => {
         getTasksFromStorage = async () => {
             const stateString = await AsyncStorage.getItem('tasks')
             const state = JSON.parse(stateString) || initialTaskState
-            setTasks(state)
+            setshowDoneTasks(state)
         }
         getTasksFromStorage()
+        loadTasks()
     }, [])
 
     useEffect(() => {
         filterTasks()
     }, [showDoneTasks, tasks])
 
+    useEffect(() => {
+        loadTasks()
+    }, [showAddTask == false])
+
     const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
+
+    async function loadTasks() {
+        try {
+            const maxDate = moment().format('YYYY-MM-DD 23:59:59')
+            const res = await axios.get(`${server}/tasks?date=${maxDate}`)
+            setTasks(res.data)
+        } catch (error) {
+            showError(error)
+        }
+    }
 
     function togglefilter() {
         setshowDoneTasks(!showDoneTasks)
@@ -63,41 +80,39 @@ const TaskList = () => {
         }
 
         setVisibleTasks(visibleTasksCopy)
-        AsyncStorage.setItem('tasks', JSON.stringify(tasks))
+        AsyncStorage.setItem('tasks', JSON.stringify(showDoneTasks))
     }
 
-    function toggleTask(taskId) {
-        const tasksCopy = [...tasks]
-        tasksCopy.forEach(task => {
-            if (task.id === taskId) {
-                task.doneAt = task.doneAt ? null : new Date()
-            }
-        })
-
-        setTasks(tasksCopy)
+    async function toggleTask(taskId) {
+        await axios.put(`${server}/tasks/${taskId}/Toggle`)
+        await loadTasks()
     }
 
-    function addTask(newTask) {
+    async function addTask(newTask) {
         if (!newTask.desc || !newTask.desc.trim()) {
             Alert.alert('Dados Inválidos!', 'Descrição não informada')
             return
         }
+  
+        try {
+            await axios.post(`${server}/tasks`, {
+                desc: newTask.desc,
+                estimateAt: newTask.date
+            })
 
-        const tasksCopy = [...tasks]
-        tasksCopy.push({
-            id: Math.random(),
-            desc: newTask.desc,
-            estimateAt: newTask.date,
-            doneAt: null
-        })
-
-        setTasks(tasksCopy)
-        setShowAddTask(false)
+            setShowAddTask(false)
+        } catch (error) {
+            showError(error)
+        }
     }
 
-    function deleteTask(id) {
-        const tasksCopy = tasks.filter(t => t.id !== id)
-        setTasks(tasksCopy)
+    async function deleteTask(taskId) {
+        try {
+            await axios.delete(`${server}/tasks/${taskId}`)
+            loadTasks()
+        } catch (error) {
+            showError(error)
+        }
     }
 
     return (
