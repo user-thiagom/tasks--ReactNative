@@ -63,7 +63,7 @@ const Auth = ({navigation}) => {
             })
 
             axios.defaults.headers.common['Authorization'] = `bearer ${res.data.token}`
-            navigation.navigate('Home')
+            navigation.navigate('Home',res.data)
         } catch (error) {
             showError(error)
         }

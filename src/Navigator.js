@@ -4,6 +4,7 @@ import Auth from './screens/Auth'
 import TaskList from './screens/TaskList'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createStackNavigator } from '@react-navigation/stack'
+import Menu from './screens/Menu'
 
 const menuConfig = {
     labelStyle: {
@@ -18,12 +19,11 @@ const Stack = createStackNavigator()
 const Drawer = createDrawerNavigator()
 
 const DrawerNavigator = props => {
-    {/*const { email, name } = props.route.params*/}
-    const email = 'thiago@gmail.com'
-    const name = 'Thiago'
-    {/*drawerContent={(props) => <Menu {...props} email={email} name={name} />}*/}
+    const { email, name } = props.route.params
+    
+    
     return (
-        <Drawer.Navigator screenOptions={menuConfig} >
+        <Drawer.Navigator screenOptions={menuConfig} drawerContent={(props) => <Menu {...props} email={email} name={name}/>}>
             <Drawer.Screen name="Today" options={{ title: 'Hoje' }}>
                 {props => <TaskList {...props} title='Hoje' daysAhead={0} />}
             </Drawer.Screen>

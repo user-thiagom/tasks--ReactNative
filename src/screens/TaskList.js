@@ -145,10 +145,10 @@ const TaskList = (props) => {
             <ImageBackground style={styles.background} source={getImage()}>
                 <View style={styles.iconBar}>
                     <TouchableOpacity onPress={()=>props.navigation.openDrawer()}>
-                        <Entypo name='menu' size={20} color={commonStyles.colors.secondary} />
+                        <Entypo name='menu' size={30} color={commonStyles.colors.secondary} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={togglefilter}>
-                        <Entypo name={showDoneTasks ? 'eye' : 'eye-with-line'} size={20} color={commonStyles.colors.secondary} />
+                        <Entypo name={showDoneTasks ? 'eye' : 'eye-with-line'} size={30} color={commonStyles.colors.secondary} />
                     </TouchableOpacity>
                 </View>
                 <View style={styles.titleBar}>
