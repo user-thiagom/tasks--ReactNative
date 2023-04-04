@@ -2,6 +2,9 @@ import { View, Text, ImageBackground, StyleSheet } from 'react-native'
 import React, { Component, useEffect, useState } from 'react'
 import commonStyles from '../commonStyles'
 import todayImage from '../../assets/imgs/today.jpg'
+import tomorrowImage from '../../assets/imgs/tomorrow.jpg'
+import weekImage from '../../assets/imgs/week.jpg'
+import monthImage from '../../assets/imgs/month.jpg'
 import moment from 'moment'
 import 'moment/locale/pt-br'
 import Task from '../components/Task'
@@ -29,7 +32,7 @@ const initialTaskState = [
     }
 ]
 
-const TaskList = () => {
+const TaskList = (props) => {
 
     const [tasks, setTasks] = useState(initialTaskState)
     const [showDoneTasks, setshowDoneTasks] = useState(true)
@@ -58,7 +61,7 @@ const TaskList = () => {
 
     async function loadTasks() {
         try {
-            const maxDate = moment().format('YYYY-MM-DD 23:59:59')
+            const maxDate = moment().add({days: props.daysAhead}).format('YYYY-MM-DD 23:59:59')
             const res = await axios.get(`${server}/tasks?date=${maxDate}`)
             setTasks(res.data)
         } catch (error) {
@@ -115,18 +118,41 @@ const TaskList = () => {
         }
     }
 
+    function getImage(){
+        switch (props.daysAhead) {
+            case 0: return todayImage
+            case 1: return tomorrowImage
+            case 7: return weekImage
+            case 30: return monthImage
+            default: return monthImage
+        }
+    }
+
+    function getColor(){
+        switch (props.daysAhead) {
+            case 0: return commonStyles.colors.today
+            case 1: return commonStyles.colors.tomorrow
+            case 7: return commonStyles.colors.week
+            case 30: return commonStyles.colors.month
+            default: return commonStyles.colors.month
+        }
+    }
+
     return (
         <View style={styles.container}>
             <AddTask isVisible={showAddTask} onCancel={() => setShowAddTask(!showAddTask)} onSave={addTask} />
 
-            <ImageBackground style={styles.background} source={todayImage}>
+            <ImageBackground style={styles.background} source={getImage()}>
                 <View style={styles.iconBar}>
+                    <TouchableOpacity onPress={()=>props.navigation.openDrawer()}>
+                        <Entypo name='menu' size={20} color={commonStyles.colors.secondary} />
+                    </TouchableOpacity>
                     <TouchableOpacity onPress={togglefilter}>
                         <Entypo name={showDoneTasks ? 'eye' : 'eye-with-line'} size={20} color={commonStyles.colors.secondary} />
                     </TouchableOpacity>
                 </View>
                 <View style={styles.titleBar}>
-                    <Text style={styles.title}>Hoje</Text>
+                    <Text style={styles.title}>{props.title}</Text>
                     <Text style={styles.subtitle}>{today}</Text>
                 </View>
             </ImageBackground>
@@ -138,7 +164,7 @@ const TaskList = () => {
                 />
             </View>
 
-            <TouchableOpacity style={styles.addButton} onPress={() => setShowAddTask(true)} activeOpacity={0.7}>
+            <TouchableOpacity style={[styles.addButton, {backgroundColor: getColor()}]} onPress={() => setShowAddTask(true)} activeOpacity={0.7}>
                 <Entypo name='plus' size={20} color={commonStyles.colors.secondary} />
             </TouchableOpacity>
         </View>
@@ -174,7 +200,7 @@ const styles = StyleSheet.create({
     iconBar: {
         flexDirection: 'row',
         marginHorizontal: 20,
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         marginTop: '10%'
     },
     addButton: {
@@ -184,7 +210,6 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: commonStyles.colors.today,
         justifyContent: 'center',
         alignItems: 'center'
     }
