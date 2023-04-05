@@ -8,11 +8,12 @@ import { TouchableOpacity } from 'react-native'
 import AuthInput from '../components/AuthInput'
 import { server, showError, showSuccess } from '../common'
 import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const initialState = {
     name: '',
-    email: 'thiago@gmail.com',
-    password: '123456',
+    email: '',
+    password: '',
     confirmPassword: '',
     stageNew: false
 }
@@ -62,6 +63,7 @@ const Auth = ({navigation}) => {
                 password: state.password
             })
 
+            AsyncStorage.setItem('userData', JSON.stringify(res.data))
             axios.defaults.headers.common['Authorization'] = `bearer ${res.data.token}`
             navigation.navigate('Home',res.data)
         } catch (error) {
